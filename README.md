@@ -8,7 +8,7 @@ The code may plot PnL graphs for leveraged LP (liquidity provider) positions on 
 
 The type of leveraged LP can be borrowing USD stablecoins, borrowing cryptos like BTC, ETH, and a delta neutral combination of the two.
 
-Parameters that needs to be manually specified:
+Parameters that need to be manually specified:
 * type of leveraged LP
 * leverage of LP
 * max LTV at liquidation
