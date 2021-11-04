@@ -1,7 +1,7 @@
 # LP-Option-Hedging
 
 ### Description
-A Python program to analyze leveraged liquidity farming/mining and find the optimal option combination for hedging impermanent loss, which may allow arbitrage. Initially written in May for personal use. Optimized by 30x with Numba. May or may not add English annotations.
+A Python program to analyze leveraged liquidity farming/mining and find the optimal option combination for hedging impermanent loss, which may allow arbitrage. Initially written in May for my personal use. Optimized by 30x with Numba. Restructured and added annotations to make it more approaching.
 
 ### Utility
 The code may plot PnL graphs for leveraged LP (liquidity provider) positions on constant product Automated Market Maker (AMM), like those on Alpha Homora and Alpaca Finance. It can perform a variational search for the optimal combination of call options and put options which minimizes impermanent loss in leveraged LP. It then plots the PnL graphs for leveraged LP, the option combination with sizes and strike prices, and the combination of leveraged LP and options.
@@ -9,11 +9,12 @@ The code may plot PnL graphs for leveraged LP (liquidity provider) positions on 
 The type of leveraged LP can be borrowing USD stablecoins, borrowing cryptos like BTC, ETH, and a delta neutral combination of the two.
 
 Parameters that need to be manually specified:
-* type of leveraged LP
+* debt type
 * leverage of LP
-* max LTV at liquidation
+* LTV at liquidation
 * APRs on farming
-* annualized volatility, risk-free interest rate, and days to expiration of European options priced by the Black-Scholes model
+* annualized volatility, risk-free interest rate
+* days to expiration and day of exercise/reselling of European options priced by the Black-Scholes model
 
 ### Background
 Providing liquidity on AMM is equivalent to short gamma and long theta, i.e. the LP subjects itself to impermanent loss in exchange for trading fees and liquidity mining rewards. On the other hand, long call and long put have positive gamma and negative theta. By virtue of the Carr–Madan formula, a smooth function of the underlying price, in this case the payoff of leveraged LP, can be replicated by a series of European options at continuous strikes. Hence it is possible to completely hedge leveraged LP with options. In pratice options are not available at any strike. Moreover the volatility is not constant at all strikes due to the volatility smile. Therefore the current program only considers a long call and a long put for hedging.
@@ -38,11 +39,12 @@ The hedging is only approximate and theoretical. The author is not responsible f
 杠杆挖矿的类型包括借U、借币及中性敞口的组合。
 
 需手动输入的参数：
-* 杠杆挖矿类型
+* 贷款类型
 * 杠杆倍数
 * 清算时债务比例
 * 挖矿APR
-* 期权的年化波动率、无风险利率、到期日
+* 年化波动率、无风险利率
+* 到期日、行权日
 
 ### 声明
 程序模拟仅为理论近似，本人不对由此造成的任何损失负责。

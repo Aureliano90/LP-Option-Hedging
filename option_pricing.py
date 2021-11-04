@@ -8,6 +8,8 @@ SQRT2 = sqrt(2.0)
 # @numba.jit("float64(float64)", nopython=True)
 @numba.vectorize("float64(float64)", nopython=True, cache=True)
 def normcdf(x):
+    """Normal cumulative distribution function
+    """
     # If X ~ N(0,1), returns P(X < x).
     return erfc(-x / SQRT2) / 2.0
 
@@ -15,6 +17,8 @@ def normcdf(x):
 # @numba.jit("float64(float64, float64)", nopython=True)
 @numba.vectorize("float64(float64, float64)", nopython=True, cache=True)
 def clip(x, min):
+    """Max between x and min
+    """
     if x < min:
         return min
     return x
@@ -26,23 +30,24 @@ def clip(x, min):
 # @numba.jit("float64(float64, float64, float64, float64, float64, int16)", nopython=True)
 # @numba.jit(nopython=True)
 def vanilla_option(S, K, T, r, sigma, option):
-    """Option Pricing
+    """Option pricing for array
+
     :param S: spot price
     :param K: strike price
     :param T: time to maturity in years
     :param r: risk-free interest rate
-    :param sigma: standard deviation of price of underlying asset
+    :param sigma: standard deviation of log of price of underlying
     :param option: 1=call, 2=put
     """
     if option == 1:
-        if T:
+        if T != 0:
             d1 = (np.log(S / K) + (r + 0.5 * sigma ** 2) * T) / (sigma * np.sqrt(T))
             d2 = (np.log(S / K) + (r - 0.5 * sigma ** 2) * T) / (sigma * np.sqrt(T))
             return S * normcdf(d1) - K * np.exp(-r * T) * normcdf(d2)
         else:
             return clip(S - K, 0.)
     else:
-        if T:
+        if T != 0:
             d1 = (np.log(S / K) + (r + 0.5 * sigma ** 2) * T) / (sigma * np.sqrt(T))
             d2 = (np.log(S / K) + (r - 0.5 * sigma ** 2) * T) / (sigma * np.sqrt(T))
             return K * np.exp(-r * T) * normcdf(-1 * d2) - S * normcdf(-1 * d1)
@@ -53,23 +58,24 @@ def vanilla_option(S, K, T, r, sigma, option):
 @numba.jit("float64(float64, float64, float64, float64, float64, int16)", nopython=True, cache=True)
 # @numba.jit(nopython=True)
 def vanilla_option1(S, K, T, r, sigma, option=1):
-    """Option Pricing
+    """Option pricing for float
+
     :param S: spot price
     :param K: strike price
     :param T: time to maturity in years
     :param r: risk-free interest rate
-    :param sigma: standard deviation of price of underlying asset
+    :param sigma: standard deviation of log of price of underlying
     :param option: 1=call, 2=put
     """
     if option == 1:
-        if T:
+        if T != 0:
             d1 = (np.log(S / K) + (r + 0.5 * sigma ** 2) * T) / (sigma * np.sqrt(T))
             d2 = (np.log(S / K) + (r - 0.5 * sigma ** 2) * T) / (sigma * np.sqrt(T))
             return S * normcdf(d1) - K * np.exp(-r * T) * normcdf(d2)
         else:
             return clip(S - K, 0.)
     else:
-        if T:
+        if T != 0:
             d1 = (np.log(S / K) + (r + 0.5 * sigma ** 2) * T) / (sigma * np.sqrt(T))
             d2 = (np.log(S / K) + (r - 0.5 * sigma ** 2) * T) / (sigma * np.sqrt(T))
             return K * np.exp(-r * T) * normcdf(-1 * d2) - S * normcdf(-1 * d1)

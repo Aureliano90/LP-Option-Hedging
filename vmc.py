@@ -3,52 +3,88 @@ from option_pricing import *
 import numba
 
 
-def VMC_plot(L, price_precision=0.1, size_precision=0.1, length=30, exercise_cost=1.0, premium_premium=1.0):
-    x = price_range(L)
-    duration = 1. / 365 * length
+def VMC_plot(L=3., price_precision=0.1, size_precision=0.1, dte: float = 30, exercise: float = 0, exercise_cost=1.0,
+             premium_premium=1.0):
+    """Plot PnL after variational search
 
-    result = VMC(L, price_precision, size_precision, length, exercise_cost, premium_premium)
+    :param L: leverage
+    :param price_precision: fineness of strike price
+    :param size_precision: fineness of option size
+    :param dte: days to expiration
+    :param exercise: days to expiration at exercise / selling
+    :param exercise_cost: account for exercise cost
+    :param premium_premium: account for cost of purchase
+    """
+    # years to expiration
+    yte = dte / 365
+    # length of farming
+    duration = yte - exercise / 365
+    print(dte, exercise)
+
+    result = VMC(L, price_precision, size_precision, dte, exercise, exercise_cost, premium_premium)
     best_call_strike = result[0]
     best_call_size = result[1]
     best_put_strike = result[2]
     best_put_size = result[3]
 
-    call_premium = vanilla_option1(1, best_call_strike, duration, r, sigma, option=1)
-    put_premium = vanilla_option1(1, best_put_strike, duration, r, sigma, option=2)
-    premium = (best_call_size * call_premium + best_put_size * put_premium) * premium_premium
-    option = exercise_cost * option_pnl(x, best_call_strike, best_put_strike, best_call_size, best_put_size) - premium
-    lp = lp_pnl(L, x)
-    maximum_loss = np.min(lp + option)
-    apr = APR(L, maximum_loss, duration, premium)
-    print(best_call_strike, best_call_size, best_put_strike, best_put_size, maximum_loss, premium, apr)
-    plot_combo(L, best_call_strike, best_call_size, best_put_strike, best_put_size, length, exercise_cost, premium_premium)
+    # x = price_range(L)
+    # call_premium = vanilla_option1(1, best_call_strike, yte, r, sigma, option=1)
+    # put_premium = vanilla_option1(1, best_put_strike, yte, r, sigma, option=2)
+    # premium = (best_call_size * call_premium + best_put_size * put_premium) * premium_premium
+    # option = exercise_cost * option_pnl(x, exercise, best_call_strike, best_put_strike, best_call_size,
+    #                                     best_put_size) - premium
+    # lp = lp_pnl(L, x)
+    # maximum_loss = np.min(lp + option)
+    # apr = APR(L, maximum_loss, duration, premium)
+    # print(best_call_strike, best_call_size, best_put_strike, best_put_size, maximum_loss, premium, apr)
+
+    plot_combo(L, best_call_strike, best_call_size, best_put_strike, best_put_size, dte, exercise, exercise_cost,
+               premium_premium)
 
 
 @numba.jit(nopython=True, cache=True)
-def VMC(L, price_precision=0.1, size_precision=0.1, length=30, exercise_cost=1.0, premium_premium=1.0):
+def VMC(L, price_precision=0.1, size_precision=0.1, dte: float = 30, exercise: float = 0, exercise_cost=1.0,
+        premium_premium=1.0):
+    """Return optimal option combination after variational search
+
+    :param L: leverage
+    :param price_precision: fineness of strike price
+    :param size_precision: fineness of option size
+    :param dte: days to expiration
+    :param exercise: days to expiration at exercise / selling
+    :param exercise_cost: account for exercise cost
+    :param premium_premium: account for cost of purchase
+    """
     x = price_range(L)
     # parameters = []
-    duration = 1. / 365 * length
+    yte = dte / 365
+    # length of farming
+    duration = yte - exercise / 365
+    print(dte, exercise)
     best_apr = - 1.0
     for call_strike in np.arange(0.5, 1.5 + price_precision, price_precision):
         # Volatility smile.
         if call_strike < 0.795 and premium_premium == 1.:
             continue
         for put_strike in np.arange(0.5, 1.5 + price_precision, price_precision):
+            # Volatility smile.
             if put_strike > 1.205 and premium_premium == 1.:
                 continue
             for call_size in np.arange(0, 2 + size_precision, size_precision):
                 for put_size in np.arange(0, 2 + size_precision, size_precision):
-                    call_premium = vanilla_option1(1, call_strike, duration, r, sigma, option=1)
-                    put_premium = vanilla_option1(1, put_strike, duration, r, sigma, option=2)
+                    call_premium = vanilla_option1(1, call_strike, yte, r, sigma, option=1)
+                    put_premium = vanilla_option1(1, put_strike, yte, r, sigma, option=2)
                     premium = (call_size * call_premium + put_size * put_premium) * premium_premium
-                    # call = vanilla_option(x, call_strike, expiration, r, sigma, option='call')
-                    # put = vanilla_option(x, put_strike, expiration, r, sigma, option='put')
-                    option = exercise_cost * option_pnl(x, call_strike, put_strike, call_size, put_size) - premium
+                    # call = vanilla_option(x, call_strike, exercise, r, sigma, option='call')
+                    # put = vanilla_option(x, put_strike, exercise, r, sigma, option='put')
+                    option = exercise_cost * option_pnl(x, exercise, call_strike, put_strike, call_size,
+                                                        put_size) - premium
                     lp = lp_pnl(L, x)
                     maximum_loss = np.min(lp + option)
                     apr = APR(L, maximum_loss, duration, premium)
-                    # result = vmcstep(L, x, call_strike, put_strike, call_size, put_size, duration, exercise_cost, premium_premium)
+                    # group previous lines in one function
+                    # result = vmcstep(L, x, call_strike, put_strike, call_size, put_size, yte, exercise, exercise_cost,
+                    # premium_premium)
                     if apr > best_apr:
                         best_call_strike = call_strike
                         best_call_size = call_size
@@ -82,22 +118,27 @@ def VMC(L, price_precision=0.1, size_precision=0.1, length=30, exercise_cost=1.0
                 continue
             for call_size in np.arange(first_call_size - size_precision, first_call_size + 1.1 * size_precision,
                                        size_precision / 10):
+                # Only long call
                 if call_size < 0:
                     continue
                 for put_size in np.arange(first_put_size - size_precision, first_put_size + 1.1 * size_precision,
                                           size_precision / 10):
+                    # Only long put
                     if put_size < 0:
                         continue
-                    call_premium = vanilla_option1(1, call_strike, duration, r, sigma, option=1)
-                    put_premium = vanilla_option1(1, put_strike, duration, r, sigma, option=2)
+                    call_premium = vanilla_option1(1, call_strike, yte, r, sigma, option=1)
+                    put_premium = vanilla_option1(1, put_strike, yte, r, sigma, option=2)
                     premium = (call_size * call_premium + put_size * put_premium) * premium_premium
-                    # call = vanilla_option(x, call_strike, expiration, r, sigma, option='call')
-                    # put = vanilla_option(x, put_strike, expiration, r, sigma, option='put')
-                    option = exercise_cost * option_pnl(x, call_strike, put_strike, call_size, put_size) - premium
+                    # call = vanilla_option(x, call_strike, exercise, r, sigma, option='call')
+                    # put = vanilla_option(x, put_strike, exercise, r, sigma, option='put')
+                    option = exercise_cost * option_pnl(x, exercise, call_strike, put_strike, call_size,
+                                                        put_size) - premium
                     lp = lp_pnl(L, x)
                     maximum_loss = np.min(lp + option)
                     apr = APR(L, maximum_loss, duration, premium)
-                    # result = vmcstep(L, x, call_strike, put_strike, call_size, put_size, duration, exercise_cost, premium_premium)
+                    # group previous lines in one function
+                    # result = vmcstep(L, x, call_strike, put_strike, call_size, put_size, yte, exercise,  exercise_cost,
+                    # premium_premium)
                     if apr > best_apr:
                         best_call_strike = call_strike
                         best_call_size = call_size
@@ -120,16 +161,17 @@ def VMC(L, price_precision=0.1, size_precision=0.1, length=30, exercise_cost=1.0
 
 
 @numba.jit(nopython=True, cache=True)
-# @numba.vectorize("float64(float64, float64, float64, float64, float64, float64, float64, float64)", nopython=True)
-# @numba.jit("(float64, float64[:], float64, float64, float64, float64, float64, float64)", nopython=True)
-def vmcstep(L, x, call_strike, put_strike, call_size, put_size, duration, exercise_cost, premium_premium):
-    call_premium = vanilla_option1(1, call_strike, duration, r, sigma, option=1)
-    put_premium = vanilla_option1(1, put_strike, duration, r, sigma, option=2)
+# @numba.vectorize("float64(float64, float64, float64, float64, float64,, float64 float64, float64, float64)", nopython=True)
+# @numba.jit("(float64, float64[:], float64, float64, float64, float64, float64, float64, float64)", nopython=True)
+def vmcstep(L, x, call_strike, put_strike, call_size, put_size, yte, exercise, exercise_cost, premium_premium):
+    duration = yte - exercise / 365
+    call_premium = vanilla_option1(1, call_strike, yte, r, sigma, option=1)
+    put_premium = vanilla_option1(1, put_strike, yte, r, sigma, option=2)
     premium = (call_size * call_premium + put_size * put_premium) * premium_premium
-    # call = vanilla_option(x, call_strike,  expiration, r, sigma, 1)
-    # put = vanilla_option(x, put_strike,  expiration, r, sigma, 2)
+    # call = vanilla_option(x, call_strike,  yte, r, sigma, 1)
+    # put = vanilla_option(x, put_strike,  yte, r, sigma, 2)
     # option = exercise_cost * (call_size * call + put_size * put) - premium
-    option = exercise_cost * option_pnl(x, call_strike, put_strike, call_size, put_size) - premium
+    option = exercise_cost * option_pnl(x, exercise, call_strike, put_strike, call_size, put_size) - premium
     lp = lp_pnl(L, x)
     maximum_loss = np.min(lp + option)
     apr = APR(L, maximum_loss, duration, premium)
