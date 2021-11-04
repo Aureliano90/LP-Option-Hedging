@@ -12,8 +12,8 @@ def VMC_plot(L=3., price_precision=0.1, size_precision=0.1, dte: float = 30, exe
     :param size_precision: fineness of option size
     :param dte: days to expiration
     :param exercise: days to expiration at exercise / selling
-    :param exercise_cost: account for exercise cost
-    :param premium_premium: account for cost of purchase
+    :param exercise_cost: account for cost of exercise due to bad liquidity and fees
+    :param premium_premium: account for cost of purchase due to bad liquidity and fees
     """
     # years to expiration
     yte = dte / 365
@@ -52,8 +52,8 @@ def VMC(L, price_precision=0.1, size_precision=0.1, dte: float = 30, exercise: f
     :param size_precision: fineness of option size
     :param dte: days to expiration
     :param exercise: days to expiration at exercise / selling
-    :param exercise_cost: account for exercise cost
-    :param premium_premium: account for cost of purchase
+    :param exercise_cost: account for cost of exercise due to bad liquidity and fees
+    :param premium_premium: account for cost of purchase due to bad liquidity and fees
     """
     x = price_range(L)
     # parameters = []
