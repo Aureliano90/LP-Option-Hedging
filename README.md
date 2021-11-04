@@ -1,7 +1,7 @@
 # LP-Option-Hedging
 
 ### Description
-A Python program to analyze leveraged liquidity farming/mining and find the optimal option combination for hedging impermanent loss, which may allow arbitrage. Initially written in May for my personal use. Optimized by 30x with Numba. Restructured and added annotations to make it more approachable.
+A Python program to analyze leveraged liquidity farming/mining and find the optimal option combination for hedging impermanent loss, which may allow arbitrage. Initially written in May for my personal use. Optimized by 30x with Numba. Restructured and added annotations to make it more approaching.
 
 ### Utility
 The code may plot PnL graphs for leveraged LP (liquidity provider) positions on constant product Automated Market Maker (AMM), like those on Alpha Homora and Alpaca Finance. It can perform a variational search for the optimal combination of call options and put options which minimizes impermanent loss in leveraged LP. It then plots the PnL graphs for leveraged LP, the option combination with sizes and strike prices, and the combination of leveraged LP and options.

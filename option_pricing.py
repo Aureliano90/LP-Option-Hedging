@@ -40,14 +40,14 @@ def vanilla_option(S, K, T, r, sigma, option):
     :param option: 1=call, 2=put
     """
     if option == 1:
-        if T != 0:
+        if T:
             d1 = (np.log(S / K) + (r + 0.5 * sigma ** 2) * T) / (sigma * np.sqrt(T))
             d2 = (np.log(S / K) + (r - 0.5 * sigma ** 2) * T) / (sigma * np.sqrt(T))
             return S * normcdf(d1) - K * np.exp(-r * T) * normcdf(d2)
         else:
             return clip(S - K, 0.)
     else:
-        if T != 0:
+        if T:
             d1 = (np.log(S / K) + (r + 0.5 * sigma ** 2) * T) / (sigma * np.sqrt(T))
             d2 = (np.log(S / K) + (r - 0.5 * sigma ** 2) * T) / (sigma * np.sqrt(T))
             return K * np.exp(-r * T) * normcdf(-1 * d2) - S * normcdf(-1 * d1)
@@ -68,14 +68,14 @@ def vanilla_option1(S, K, T, r, sigma, option=1):
     :param option: 1=call, 2=put
     """
     if option == 1:
-        if T != 0:
+        if T:
             d1 = (np.log(S / K) + (r + 0.5 * sigma ** 2) * T) / (sigma * np.sqrt(T))
             d2 = (np.log(S / K) + (r - 0.5 * sigma ** 2) * T) / (sigma * np.sqrt(T))
             return S * normcdf(d1) - K * np.exp(-r * T) * normcdf(d2)
         else:
             return clip(S - K, 0.)
     else:
-        if T != 0:
+        if T:
             d1 = (np.log(S / K) + (r + 0.5 * sigma ** 2) * T) / (sigma * np.sqrt(T))
             d2 = (np.log(S / K) + (r - 0.5 * sigma ** 2) * T) / (sigma * np.sqrt(T))
             return K * np.exp(-r * T) * normcdf(-1 * d2) - S * normcdf(-1 * d1)

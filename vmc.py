@@ -19,7 +19,7 @@ def VMC_plot(L=3., price_precision=0.1, size_precision=0.1, dte: float = 30, exe
     yte = dte / 365
     # length of farming
     duration = yte - exercise / 365
-    print(dte, exercise)
+    # print(dte, exercise)
 
     result = VMC(L, price_precision, size_precision, dte, exercise, exercise_cost, premium_premium)
     best_call_strike = result[0]
@@ -60,7 +60,7 @@ def VMC(L, price_precision=0.1, size_precision=0.1, dte: float = 30, exercise: f
     yte = dte / 365
     # length of farming
     duration = yte - exercise / 365
-    print(dte, exercise)
+    # print(dte, exercise)
     best_apr = - 1.0
     for call_strike in np.arange(0.5, 1.5 + price_precision, price_precision):
         # Volatility smile.

@@ -10,11 +10,11 @@ if __name__ == '__main__':
     # days to expiration at exercise / selling
     exercise: float = 30
 
-    VMC_plot(L=2.5, price_precision=0.1, size_precision=0.1, dte=dte, exercise=exercise, exercise_cost=1,
-             premium_premium=1)
-    # print(timeit.timeit(
-    #     'VMC_plot(L=2.5, price_precision=0.1, size_precision=0.1, dte=dte, exercise=exercise, exercise_cost=1, premium_premium=1)',
-    #     globals=globals(), number=5)/5)
+    # VMC_plot(L=2.5, price_precision=0.1, size_precision=0.1, dte=dte, exercise=exercise, exercise_cost=1,
+    #          premium_premium=1)
+    print(timeit.timeit(
+        'VMC_plot(L=2.5, price_precision=0.1, size_precision=0.1, dte=dte, exercise=exercise, exercise_cost=1, premium_premium=1)',
+        globals=globals(), number=5)/5)
 
     # print(timeit.timeit('VMC(3, price_precision=0.1, size_precision=0.1, dte=27, exercise_cost=1, premium_premium=1)'
     #                     , globals=globals(), number=50)/50)
