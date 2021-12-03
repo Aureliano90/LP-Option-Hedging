@@ -28,8 +28,8 @@ def VMC_plot(L=3., price_precision=0.1, size_precision=0.1, dte: float = 30, exe
     best_put_size = result[3]
 
     # x = price_range(L)
-    # call_premium = vanilla_option1(1, best_call_strike, yte, r, sigma, option=1)
-    # put_premium = vanilla_option1(1, best_put_strike, yte, r, sigma, option=2)
+    # call_premium = vanilla_option1(1, best_call_strike, yte, r, q, sigma, option=1)
+    # put_premium = vanilla_option1(1, best_put_strike, yte, r, q, sigma, option=2)
     # premium = (best_call_size * call_premium + best_put_size * put_premium) * premium_premium
     # option = exercise_cost * option_pnl(x, exercise, best_call_strike, best_put_strike, best_call_size,
     #                                     best_put_size) - premium
@@ -72,11 +72,11 @@ def VMC(L, price_precision=0.1, size_precision=0.1, dte: float = 30, exercise: f
                 continue
             for call_size in np.arange(0, 2 + size_precision, size_precision):
                 for put_size in np.arange(0, 2 + size_precision, size_precision):
-                    call_premium = vanilla_option1(1, call_strike, yte, r, sigma, option=1)
-                    put_premium = vanilla_option1(1, put_strike, yte, r, sigma, option=2)
+                    call_premium = vanilla_option1(1, call_strike, yte, r, q, sigma, option=1)
+                    put_premium = vanilla_option1(1, put_strike, yte, r, q, sigma, option=2)
                     premium = (call_size * call_premium + put_size * put_premium) * premium_premium
-                    # call = vanilla_option(x, call_strike, exercise, r, sigma, option='call')
-                    # put = vanilla_option(x, put_strike, exercise, r, sigma, option='put')
+                    # call = vanilla_option(x, call_strike, exercise, r, q, sigma, option='call')
+                    # put = vanilla_option(x, put_strike, exercise, r, q, sigma, option='put')
                     option = exercise_cost * option_pnl(x, exercise, call_strike, put_strike, call_size,
                                                         put_size) - premium
                     lp = lp_pnl(L, x)
@@ -126,11 +126,11 @@ def VMC(L, price_precision=0.1, size_precision=0.1, dte: float = 30, exercise: f
                     # Only long put
                     if put_size < 0:
                         continue
-                    call_premium = vanilla_option1(1, call_strike, yte, r, sigma, option=1)
-                    put_premium = vanilla_option1(1, put_strike, yte, r, sigma, option=2)
+                    call_premium = vanilla_option1(1, call_strike, yte, r, q, sigma, option=1)
+                    put_premium = vanilla_option1(1, put_strike, yte, r, q, sigma, option=2)
                     premium = (call_size * call_premium + put_size * put_premium) * premium_premium
-                    # call = vanilla_option(x, call_strike, exercise, r, sigma, option='call')
-                    # put = vanilla_option(x, put_strike, exercise, r, sigma, option='put')
+                    # call = vanilla_option(x, call_strike, exercise, r, q, sigma, option='call')
+                    # put = vanilla_option(x, put_strike, exercise, r, q, sigma, option='put')
                     option = exercise_cost * option_pnl(x, exercise, call_strike, put_strike, call_size,
                                                         put_size) - premium
                     lp = lp_pnl(L, x)
@@ -165,11 +165,11 @@ def VMC(L, price_precision=0.1, size_precision=0.1, dte: float = 30, exercise: f
 # @numba.jit("(float64, float64[:], float64, float64, float64, float64, float64, float64, float64)", nopython=True)
 def vmcstep(L, x, call_strike, put_strike, call_size, put_size, yte, exercise, exercise_cost, premium_premium):
     duration = yte - exercise / 365
-    call_premium = vanilla_option1(1, call_strike, yte, r, sigma, option=1)
-    put_premium = vanilla_option1(1, put_strike, yte, r, sigma, option=2)
+    call_premium = vanilla_option1(1, call_strike, yte, r, q, sigma, option=1)
+    put_premium = vanilla_option1(1, put_strike, yte, r, q, sigma, option=2)
     premium = (call_size * call_premium + put_size * put_premium) * premium_premium
-    # call = vanilla_option(x, call_strike,  yte, r, sigma, 1)
-    # put = vanilla_option(x, put_strike,  yte, r, sigma, 2)
+    # call = vanilla_option(x, call_strike,  yte, r, q, sigma, 1)
+    # put = vanilla_option(x, put_strike,  yte, r, q, sigma, 2)
     # option = exercise_cost * (call_size * call + put_size * put) - premium
     option = exercise_cost * option_pnl(x, exercise, call_strike, put_strike, call_size, put_size) - premium
     lp = lp_pnl(L, x)

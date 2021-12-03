@@ -5,7 +5,8 @@ import numba
 # annualized volatility
 sigma = 0.8
 # risk-free interest rate
-r = 0.05
+r = 0.1
+q = 0.005
 
 # debt type
 # B for borrowing crypto, U for borrowing stablecoin, B+U for pseudo neutral strategy
@@ -90,8 +91,8 @@ def option_pnl(x, exercise: float, call_strike, put_strike, call_size, put_size)
     :param x: underlying price
     :param exercise: days to expiration at exercise / selling
     """
-    call = vanilla_option(x, call_strike, exercise / 365, r, sigma, 1)
-    put = vanilla_option(x, put_strike, exercise / 365, r, sigma, 2)
+    call = vanilla_option(x, call_strike, exercise / 365, r, q, sigma, 1)
+    put = vanilla_option(x, put_strike, exercise / 365, r, q, sigma, 2)
     return call_size * call + put_size * put
 
 
@@ -141,8 +142,8 @@ def plot_combo(L, call_strike, call_size, put_strike, put_size, dte: float = 30,
     duration = yte - exercise / 365
 
     plt.figure(figsize=(16, 8))
-    call_premium = vanilla_option1(1, call_strike, yte, r, sigma, option=1)
-    put_premium = vanilla_option1(1, put_strike, yte, r, sigma, option=2)
+    call_premium = vanilla_option1(1, call_strike, yte, r, q, sigma, option=1)
+    put_premium = vanilla_option1(1, put_strike, yte, r, q, sigma, option=2)
     premium = (call_size * call_premium + put_size * put_premium) * premium_premium
     option = exercise_cost * option_pnl(x, exercise, call_strike, put_strike, call_size, put_size) - premium
     lp = lp_pnl(L, x)

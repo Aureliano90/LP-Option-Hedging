@@ -20,7 +20,7 @@ Parameters that need to be manually specified:
 * leverage of LP
 * LTV at liquidation
 * APRs on farming
-* annualized volatility, risk-free interest rate
+* annualized volatility, risk-free interest rate for crypto and stablecoin
 * days to expiration and day of exercise/reselling of European options priced by the Black-Scholes model[3]
 
 ### Background
