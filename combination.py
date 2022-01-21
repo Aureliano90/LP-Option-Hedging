@@ -4,8 +4,9 @@ import numba
 
 # annualized volatility
 sigma = 0.8
-# risk-free interest rate
+# risk-free interest rate on stablecoin
 r = 0.1
+# risk-free interest rate on crypto
 q = 0.005
 
 # debt type
@@ -121,7 +122,7 @@ def APR(L, maximum_loss, duration, premium):
             a = L / 2 / (L - 1)
 
             return (a * apr_farm_B + (1 - a) * apr_farm_U) * (L - 1) / (1 + premium) + (
-                        apr_dex * L + maximum_loss / duration) / (1 + premium)
+                    apr_dex * L + maximum_loss / duration) / (1 + premium)
     else:
         print("Specify debt type.")
         return 0.0
@@ -142,8 +143,8 @@ def plot_combo(L, call_strike, call_size, put_strike, put_size, dte: float = 30,
     duration = yte - exercise / 365
 
     plt.figure(figsize=(16, 8))
-    call_premium = vanilla_option1(1, call_strike, yte, r, q, sigma, option=1)
-    put_premium = vanilla_option1(1, put_strike, yte, r, q, sigma, option=2)
+    call_premium = vanilla_option([1.], call_strike, yte, r, q, sigma, 1)[0]
+    put_premium = vanilla_option([1.], put_strike, yte, r, q, sigma, 2)[0]
     premium = (call_size * call_premium + put_size * put_premium) * premium_premium
     option = exercise_cost * option_pnl(x, exercise, call_strike, put_strike, call_size, put_size) - premium
     lp = lp_pnl(L, x)
@@ -156,39 +157,39 @@ def plot_combo(L, call_strike, call_size, put_strike, put_size, dte: float = 30,
     # plt.title("杠杆挖矿，期权，及其组合", fontsize=16)
     # plt.xlabel("现价相对开仓价", fontsize=14)
     # plt.ylabel("相对本金盈亏", fontsize=14)
+    # assert borrow in ['B', 'U', 'B+U']
     # if borrow == 'B':
     #     debt = '借币'
     # elif borrow == 'U':
     #     debt = '借U'
-    # elif borrow == 'B+U':
+    # else:
     #     a = L / 2 / (L - 1)
-    #     debt = '{:.2f}借币，{:.2f}借U'.format(a, 1 - a)
-    # plt.plot(x, lp, label='{}倍杠杆LP，'.format(L) + debt)
-    # plt.plot(x, option,
-    #          label='{:.1f}天后到期，到期前{:.1f}天行权，{:.2f}个Call行权价{:.2f}，{:.2f}个Put行权价{:.2f}\n '
-    #                'Call单价{:.3f}，Put单价{:.3f}，隐含波动率{:.1%}'
-    #          .format(dte, exercise, call_size, call_strike, put_size, put_strike, call_premium, put_premium, sigma))
-    # plt.plot(x, lp + option,
-    #          label='组合收益，最大回撤:{:.2%}，权利金:{:.3f}，最低APR:{:.2%}'.format(maximum_loss, premium, apr))
+    #     debt = f'{a:.2f}借币，{1-a:.2f}借U'
+    # plt.plot(x, lp, label=f'{L}倍杠杆LP，' + debt)
+    # plt.plot(x, option, label=f'{dte:.1f}天后到期，到期前{exercise:.1f}天行权，{call_size:.2f}个Call行权价{call_strike:.2f}，'
+    #                           f'{put_size:.2f}个Put行权价{put_strike:.2f}\n Call单价{call_premium:.3f}，'
+    #                           f'Put单价{put_premium:.3f}，隐含波动率{sigma:.1%}')
+    # plt.plot(x, lp + option, label=f'组合收益，最大回撤:{maximum_loss:.2%}，权利金:{premium:.3f}，最低APR:{apr:.2%}')
 
     plt.title("Leveraged yield farming, options, and their combination", fontsize=16)
     plt.xlabel("Price relative to entry", fontsize=14)
     plt.ylabel("Relative PnL", fontsize=14)
+    assert borrow in ['B', 'U', 'B+U']
     if borrow == 'B':
         debt = 'borrowing crypto'
     elif borrow == 'U':
         debt = 'borrowing stable'
-    elif borrow == 'B+U':
+    else:
         a = L / 2 / (L - 1)
-        debt = '{:.2f} borrowing crypto, {:.2f} borrowing stable'.format(a, 1 - a)
-    plt.plot(x, lp, label='Farming at {} leverage, '.format(L) + debt)
+        debt = f'{a:.2f} borrowing crypto, {1 - a:.2f} borrowing stable'
+    plt.plot(x, lp, label=f'Farming at {L} leverage, ' + debt)
     plt.plot(x, option,
-             label='{:.1f} days to expiration, exercise {:.1f} days before expiration\n'
-                   '{:.2f} call strike at {:.2f}, {:.2f} put strike at {:.2f}\n'
-                   ' call premium {:.3f}, put premium {:.3f}, IV {:.1%}'
-             .format(dte, exercise, call_size, call_strike, put_size, put_strike, call_premium, put_premium, sigma))
-    plt.plot(x, lp + option, label='Total PnL, maximum drawback: {:.2%}, total premium: {:.3f}, minimum APR: {:.2%}'
-             .format(maximum_loss, premium, apr))
+             label=f'{dte:.1f} days to expiration, exercise {exercise:.1f} days before expiration\n'
+                   f'{call_size:.2f} call strike at {call_strike:.2f}, {put_size:.2f} put strike at {put_strike:.2f}\n'
+                   f' call premium {call_premium:.3f}, put premium {put_premium:.3f}, IV {sigma:.1%}')
+    plt.plot(x, lp + option,
+             label=f'Total PnL, maximum drawback: {maximum_loss:.2%}, total premium: {premium:.3f},'
+                   f' minimum APR: {apr:.2%}')
 
     plt.legend(loc="best", prop={'size': 12})
     plt.grid(linestyle='--')
