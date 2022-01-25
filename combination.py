@@ -143,8 +143,8 @@ def plot_combo(L, call_strike, call_size, put_strike, put_size, dte: float = 30,
     duration = yte - exercise / 365
 
     plt.figure(figsize=(16, 8))
-    call_premium = vanilla_option([1.], call_strike, yte, r, q, sigma, 1)[0]
-    put_premium = vanilla_option([1.], put_strike, yte, r, q, sigma, 2)[0]
+    call_premium = vanilla_option(np.ones(1), call_strike, yte, r, q, sigma, 1)[0]
+    put_premium = vanilla_option(np.ones(1), put_strike, yte, r, q, sigma, 2)[0]
     premium = (call_size * call_premium + put_size * put_premium) * premium_premium
     option = exercise_cost * option_pnl(x, exercise, call_strike, put_strike, call_size, put_size) - premium
     lp = lp_pnl(L, x)
@@ -191,6 +191,7 @@ def plot_combo(L, call_strike, call_size, put_strike, put_size, dte: float = 30,
              label=f'Total PnL, maximum drawback: {maximum_loss:.2%}, total premium: {premium:.3f},'
                    f' minimum APR: {apr:.2%}')
 
+    plt.gca().yaxis.set_major_formatter('{x:.0%}')
     plt.legend(loc="best", prop={'size': 12})
     plt.grid(linestyle='--')
     plt.show()

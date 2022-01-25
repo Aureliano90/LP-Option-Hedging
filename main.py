@@ -1,8 +1,6 @@
 import time
 import timeit
-
 import numpy as np
-
 from vmc import *
 from combination import *
 
