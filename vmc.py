@@ -1,6 +1,4 @@
 from combination import *
-from option_pricing import *
-import numba
 
 
 def VMC_plot(L=3., price_precision=0.1, size_precision=0.1, dte: float = 30, exercise: float = 0, exercise_cost=1.0,

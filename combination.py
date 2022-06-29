@@ -1,6 +1,5 @@
 import matplotlib.pyplot as plt
 from option_pricing import *
-import numba
 
 # annualized volatility
 sigma = 0.8
@@ -91,6 +90,11 @@ def option_pnl(x, exercise: float, call_strike, put_strike, call_size, put_size)
 
     :param x: underlying price
     :param exercise: days to expiration at exercise / selling
+    :param call_strike:
+    :param put_strike:
+    :param call_size:
+    :param put_size:
+    :return: pnl
     """
     call = vanilla_option(x, call_strike, exercise / 365, r, q, sigma, 1)
     put = vanilla_option(x, put_strike, exercise / 365, r, q, sigma, 2)
@@ -133,6 +137,10 @@ def plot_combo(L, call_strike, call_size, put_strike, put_size, dte: float = 30,
     """Plot PnL graphs
 
     :param L: leverage
+    :param call_strike:
+    :param call_size:
+    :param put_strike:
+    :param put_size:
     :param dte: days to expiration
     :param exercise: days to expiration at exercise / selling
     :param exercise_cost: account for exercise cost
